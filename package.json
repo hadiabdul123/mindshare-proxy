@@ -6,7 +6,11 @@
   "scripts": {
     "start": "node index.js"
   },
-  "keywords": ["proxy", "discord", "mindshare"],
+  "keywords": [
+    "proxy",
+    "discord",
+    "mindshare"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {

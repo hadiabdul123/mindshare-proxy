@@ -3,8 +3,6 @@
  * Allows multiple /endpoints on the same domain
  * =============================================================== */
 
-require('dotenv').config();  // Load .env file for local testing
-
 const express = require('express');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
