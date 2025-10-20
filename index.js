@@ -34,7 +34,9 @@ app.get('/health', (req, res) => {
     message: 'Mindshare Proxy is running',
     routes: {
       '/network': BOT_A_URL,
-      '/fogochain': BOT_B_URL
+      '/fogochain': BOT_B_URL,
+      '/api/*': `${BOT_A_URL} (default)`,
+      '/dashboard.html': BOT_A_URL
     },
     timestamp: Date.now()
   });
@@ -144,12 +146,58 @@ app.use('/fogochain', createProxyMiddleware({
   }
 }));
 
+// Route ALL /api/* requests to Bot A (default bot)
+// This allows the dashboard to fetch data from /api/guild/*, /api/scan/progress, etc.
+app.use('/api', createProxyMiddleware({
+  target: BOT_A_URL,
+  changeOrigin: true,
+  logLevel: 'debug',
+  onProxyReq: (proxyReq, req) => {
+    console.log('\n========== PROXY DEBUG /api ==========');
+    console.log('📥 INCOMING REQUEST:');
+    console.log('   req.url:', req.url);
+    console.log('   req.originalUrl:', req.originalUrl);
+    console.log('\n📤 OUTGOING REQUEST:');
+    console.log('   proxyReq.path:', proxyReq.path);
+    console.log('   Full target URL:', `${BOT_A_URL}${proxyReq.path}`);
+    console.log('======================================\n');
+  },
+  onProxyRes: (proxyRes) => {
+    console.log(`✅ Response from Bot A (API): ${proxyRes.statusCode} ${proxyRes.statusMessage}`);
+  },
+  onError: (err, _req, res) => {
+    console.error('\n❌ PROXY ERROR for /api:');
+    console.error('   Message:', err.message);
+    res.status(502).send({
+      error: 'Bad Gateway',
+      message: err.message,
+      target: BOT_A_URL
+    });
+  }
+}));
+
+// Route /dashboard.html to Bot A (in case it's requested directly)
+app.use('/dashboard.html', createProxyMiddleware({
+  target: BOT_A_URL,
+  changeOrigin: true,
+  onProxyReq: (proxyReq) => {
+    console.log(`📄 Proxying dashboard.html to Bot A: ${BOT_A_URL}${proxyReq.path}`);
+  },
+  onError: (err, _req, res) => {
+    console.error('❌ PROXY ERROR for /dashboard.html:', err.message);
+    res.status(502).send({
+      error: 'Bad Gateway',
+      message: err.message
+    });
+  }
+}));
+
 // 404 handler for unknown routes
 app.use((req, res) => {
   res.status(404).send({
     error: 'Not Found',
     message: 'Endpoint not found',
-    availableEndpoints: ['/network', '/fogochain', '/health']
+    availableEndpoints: ['/network', '/fogochain', '/api/*', '/health']
   });
 });
 
