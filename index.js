@@ -78,11 +78,17 @@ app.get('/', (req, res) => {
 app.use('/network', createProxyMiddleware({
   target: BOT_A_URL,
   changeOrigin: true,
-  logLevel: 'info',
-  onProxyReq: (proxyReq, req, res) => {
-    console.log(`🔀 Proxying: ${req.method} ${req.path} → ${BOT_A_URL}${req.path}`);
+  pathRewrite: {
+    '^/': '/network'  // Preserve /network path (Express strips it by default)
   },
-  onError: (err, req, res) => {
+  logLevel: 'info',
+  onProxyReq: (proxyReq, req) => {
+    console.log(`🔀 Proxying /network:`);
+    console.log(`   Original URL: ${req.originalUrl}`);
+    console.log(`   Forwarding to: ${BOT_A_URL}/network`);
+    console.log(`   Target path: ${proxyReq.path}`);
+  },
+  onError: (err, _req, res) => {
     console.error('❌ Proxy error for /network:', err.message);
     res.status(502).send({
       error: 'Bad Gateway',
@@ -96,11 +102,17 @@ app.use('/network', createProxyMiddleware({
 app.use('/fogochain', createProxyMiddleware({
   target: BOT_B_URL,
   changeOrigin: true,
-  logLevel: 'info',
-  onProxyReq: (proxyReq, req, res) => {
-    console.log(`🔀 Proxying: ${req.method} ${req.path} → ${BOT_B_URL}${req.path}`);
+  pathRewrite: {
+    '^/': '/fogochain'  // Preserve /fogochain path (Express strips it by default)
   },
-  onError: (err, req, res) => {
+  logLevel: 'info',
+  onProxyReq: (proxyReq, req) => {
+    console.log(`🔀 Proxying /fogochain:`);
+    console.log(`   Original URL: ${req.originalUrl}`);
+    console.log(`   Forwarding to: ${BOT_B_URL}/fogochain`);
+    console.log(`   Target path: ${proxyReq.path}`);
+  },
+  onError: (err, _req, res) => {
     console.error('❌ Proxy error for /fogochain:', err.message);
     res.status(502).send({
       error: 'Bad Gateway',
