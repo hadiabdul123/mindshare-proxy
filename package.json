@@ -1,0 +1,16 @@
+{
+  "name": "mindshare-proxy",
+  "version": "1.0.0",
+  "description": "Proxy service to route traffic between multiple Mindshare Discord bots",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": ["proxy", "discord", "mindshare"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "http-proxy-middleware": "^2.0.6"
+  }
+}
