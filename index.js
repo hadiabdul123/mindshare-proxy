@@ -3,6 +3,8 @@
  * Allows multiple /endpoints on the same domain
  * =============================================================== */
 
+require('dotenv').config();  // Load .env file for local testing
+
 const express = require('express');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
@@ -78,9 +80,6 @@ app.get('/', (req, res) => {
 app.use('/network', createProxyMiddleware({
   target: BOT_A_URL,
   changeOrigin: true,
-  pathRewrite: {
-    '^/': '/network'  // Current config - testing if this causes doubling
-  },
   logLevel: 'debug',
   onProxyReq: (proxyReq, req) => {
     console.log('\n========== PROXY DEBUG /network ==========');
@@ -116,9 +115,6 @@ app.use('/network', createProxyMiddleware({
 app.use('/fogochain', createProxyMiddleware({
   target: BOT_B_URL,
   changeOrigin: true,
-  pathRewrite: {
-    '^/': '/fogochain'  // Current config - testing if this causes doubling
-  },
   logLevel: 'debug',
   onProxyReq: (proxyReq, req) => {
     console.log('\n========== PROXY DEBUG /fogochain ==========');
