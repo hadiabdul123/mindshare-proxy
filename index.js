@@ -79,20 +79,34 @@ app.use('/network', createProxyMiddleware({
   target: BOT_A_URL,
   changeOrigin: true,
   pathRewrite: {
-    '^/': '/network'  // Preserve /network path (Express strips it by default)
+    '^/': '/network'  // Current config - testing if this causes doubling
   },
-  logLevel: 'info',
+  logLevel: 'debug',
   onProxyReq: (proxyReq, req) => {
-    console.log(`🔀 Proxying /network:`);
-    console.log(`   Original URL: ${req.originalUrl}`);
-    console.log(`   Forwarding to: ${BOT_A_URL}/network`);
-    console.log(`   Target path: ${proxyReq.path}`);
+    console.log('\n========== PROXY DEBUG /network ==========');
+    console.log('📥 INCOMING REQUEST:');
+    console.log('   req.url:', req.url);
+    console.log('   req.path:', req.path);
+    console.log('   req.originalUrl:', req.originalUrl);
+    console.log('   req.baseUrl:', req.baseUrl);
+
+    console.log('\n📤 OUTGOING REQUEST:');
+    console.log('   proxyReq.path:', proxyReq.path);
+    console.log('   proxyReq.host:', proxyReq.getHeader('host'));
+    console.log('   Full target URL:', `${BOT_A_URL}${proxyReq.path}`);
+    console.log('==========================================\n');
+  },
+  onProxyRes: (proxyRes, req) => {
+    console.log(`✅ Response from Bot A: ${proxyRes.statusCode} ${proxyRes.statusMessage}`);
   },
   onError: (err, _req, res) => {
-    console.error('❌ Proxy error for /network:', err.message);
+    console.error('\n❌ PROXY ERROR for /network:');
+    console.error('   Message:', err.message);
+    console.error('   Code:', err.code);
+    console.error('   Stack:', err.stack);
     res.status(502).send({
       error: 'Bad Gateway',
-      message: 'Failed to connect to network bot',
+      message: err.message,
       target: BOT_A_URL
     });
   }
@@ -103,20 +117,34 @@ app.use('/fogochain', createProxyMiddleware({
   target: BOT_B_URL,
   changeOrigin: true,
   pathRewrite: {
-    '^/': '/fogochain'  // Preserve /fogochain path (Express strips it by default)
+    '^/': '/fogochain'  // Current config - testing if this causes doubling
   },
-  logLevel: 'info',
+  logLevel: 'debug',
   onProxyReq: (proxyReq, req) => {
-    console.log(`🔀 Proxying /fogochain:`);
-    console.log(`   Original URL: ${req.originalUrl}`);
-    console.log(`   Forwarding to: ${BOT_B_URL}/fogochain`);
-    console.log(`   Target path: ${proxyReq.path}`);
+    console.log('\n========== PROXY DEBUG /fogochain ==========');
+    console.log('📥 INCOMING REQUEST:');
+    console.log('   req.url:', req.url);
+    console.log('   req.path:', req.path);
+    console.log('   req.originalUrl:', req.originalUrl);
+    console.log('   req.baseUrl:', req.baseUrl);
+
+    console.log('\n📤 OUTGOING REQUEST:');
+    console.log('   proxyReq.path:', proxyReq.path);
+    console.log('   proxyReq.host:', proxyReq.getHeader('host'));
+    console.log('   Full target URL:', `${BOT_B_URL}${proxyReq.path}`);
+    console.log('==========================================\n');
+  },
+  onProxyRes: (proxyRes) => {
+    console.log(`✅ Response from Bot B: ${proxyRes.statusCode} ${proxyRes.statusMessage}`);
   },
   onError: (err, _req, res) => {
-    console.error('❌ Proxy error for /fogochain:', err.message);
+    console.error('\n❌ PROXY ERROR for /fogochain:');
+    console.error('   Message:', err.message);
+    console.error('   Code:', err.code);
+    console.error('   Stack:', err.stack);
     res.status(502).send({
       error: 'Bad Gateway',
-      message: 'Failed to connect to fogochain bot',
+      message: err.message,
       target: BOT_B_URL
     });
   }
